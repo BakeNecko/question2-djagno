@@ -5,7 +5,7 @@ from rest_framework.test import (APIClient, APIRequestFactory, APITestCase,
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth import get_user_model
 
-from question.models import Poll, Report
+from question.models import Poll, Report, Question
 
 class InitClass(APITestCase, URLPatternsTestCase):
     User = get_user_model()
@@ -23,6 +23,13 @@ class InitClass(APITestCase, URLPatternsTestCase):
         client = self.login_user(access)
         return user, client
 
+    def data_create_user(self,data):
+        user = self.User.objects.create(**data)
+        access = AccessToken.for_user(user)
+        client = self.login_user(access)
+
+        return user, client
+        
     def create_anon_user(self):
         client = APIClient()
         return client
@@ -83,3 +90,23 @@ class InitClass(APITestCase, URLPatternsTestCase):
         except:
             model = None
         return response, model    
+    
+    def create_quiestion(self, client, data):
+        path = reverse('question')
+        response = client.post(path, data=data, format='json')
+        try:
+            model = Question.objects.get(pk=response.data['id'])
+        except:
+            model = None
+        return response, model 
+
+    def change_quiestion(self, client, data, pk):
+        path = reverse('question_detail', args=[pk])
+        response = client.put(path, data=data, format='json')
+        try:
+            model = Question.objects.get(pk=response.data['id'])
+        except:
+            model = None
+        return response, model 
+
+

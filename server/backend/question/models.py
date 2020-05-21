@@ -75,6 +75,6 @@ class Answer(models.Model):
     answer = models.TextField()
 
     class Meta:
-        verbose_name = 'ReportAnswer'
-        verbose_name_plural = 'ReportAnswers'
+        verbose_name = 'Report Answer'
+        verbose_name_plural = 'Report Answers'
 

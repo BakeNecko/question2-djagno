@@ -71,3 +71,50 @@ class TestAdminAPI(InitClass):
     # Admin try delete poll 
     response = self.delete_poll(admin_client, pk=poll.pk)
     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    # Check QuestionViewSet API logic 
+    response, poll_model = self.create_poll(admin_client, data=poll_data)
+    default_user.report_id = 1234
+    default_user.save()
+    
+    another_user_data = {"username": 'AnotherUser', 
+                        "email": 'anotheruser@gmail.com', 
+                        "password": 'PaSwOrD123'}
+    another_user, another_user_client = self.data_create_user(data=another_user_data)
+    another_user.report_id = 4321 
+    another_user.save() 
+
+    question_data =  {
+            "poll_id": poll_model.pk, 
+            "question_type": "MULTIPLE_CHOICE_ANSWER",
+            "text": "Added of question",
+            "answer_choices": {
+                "1": "Add first answer",
+                "2": "Add secont answer"
+            }
+        }
+    
+    # User try create question 
+    response, _ = self.create_quiestion(default_client, question_data)
+    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # Admin tre create question 
+    response, question_model = self.create_quiestion(admin_client, question_data)
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    self.assertEqual(response.data['question_type'], "MULTIPLE_CHOICE_ANSWER")
+
+    change_question_data =  {
+            "question_type": "MULTIPLE_CHOICE_ANSWER",
+            "text": "Changed Added of question",
+            "answer_choices": {
+                "1": "Changed Add first answer",
+                "2": "Changed Add secont answer"
+            }
+        }
+    # User try change question 
+    response, _ = self.change_quiestion(default_client, change_question_data, question_model.pk)
+    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # Admint change question 
+    response, question_model = self.change_quiestion(admin_client, change_question_data, question_model.pk)
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
