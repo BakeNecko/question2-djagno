@@ -70,8 +70,8 @@ class PollViewSet(viewsets.ModelViewSet):
         self.check_permissions(self.request)
         data = request.data.copy()
         questions = data.pop('questions')
-        if questions == None:
-            return Response(data={"detail": "put question in request"}, status=status.HTTP_400_BAD_REQUEST)
+        if questions == None or len(questions) == 0:
+            return Response(data={"detail": "put questions in poll"}, status=status.HTTP_400_BAD_REQUEST)
         poll_serializer = self.serializer_class(data=data)
         if poll_serializer.is_valid(raise_exception=True):
             poll_serializer.save()
@@ -101,6 +101,9 @@ class PollViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_permissions(self):
+        # По какой то причине нелья написать == 'list' or 'retrieve' 
+        # т.к сбиваются права доступа на retrieve 
+        # Возможно разный порядок вызова прав доступа по умолчанию
         if self.action == 'list':
             permission_classes = [permissions.AllowAny,]
         elif self.action == 'retrieve':
