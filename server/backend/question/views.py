@@ -81,20 +81,27 @@ class ReportViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff:
-            return Report.objects.all()
-        else: 
-            return Report.objects.filter(user_report_id=user.user_report_id)
-    
+        if user.is_anonymous != True:
+            if user.is_staff:
+                return Report.objects.all()
+            else: 
+                return Report.objects.filter(user_report_id=user.user_report_id)
+        else:
+            return None
+                
     def create(self, request):
         data = request.data.copy()
-        if request.user.is_anonymous != True: 
+        if request.user.is_anonymous != True: # TODO: перенести это в permissions
             if request.user.is_staff: 
                 pass
             else: 
                 if request.user.report_id != request.data['user_report_id']:
                     return Response(data={'detail': 'U do not have permission for this action'}, 
                                           status=status.HTTP_403_FORBIDDEN)
+        else: 
+            if request.data['user_report_id'] is not None: 
+                return Response(data={'detail': 'U do not have permission for this action'}, 
+                                        status=status.HTTP_403_FORBIDDEN)            
         serializer = CreateReportSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             model = serializer.save()

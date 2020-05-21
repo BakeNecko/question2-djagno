@@ -8,7 +8,7 @@ import jsonfield
 
 
 class MyUser(AbstractUser):
-    report_id = models.BigIntegerField(blank=True,null=True)
+    report_id = models.BigIntegerField(blank=True,null=True, unique=True)
 
 class Poll(models.Model):
     name = models.CharField(blank=False, max_length=40, null=False)
