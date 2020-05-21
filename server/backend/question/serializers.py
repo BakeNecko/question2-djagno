@@ -79,6 +79,36 @@ class PollSerializer(serializers.ModelSerializer):
         }
         depth = 1
 
+class CreatePollSerializer(serializers.ModelSerializer):
+    questions_list = serializers.ListField(child=serializers.JSONField())
+    
+    class Meta:
+        model = Poll
+        fields = [
+            'id',
+            'name',
+            'description',
+            'date_start',
+            'date_end',
+            'questions_list',
+        ]
+        extra_kwargs = {
+            "name": {"required": True},
+            "description": {"required": True},
+            "date_start": {"required": True},
+            "date_end": {"required": True},
+            "questions_list": {"required": True},
+        }
+        depth = 1
+    
+    def create(self, validated_data):
+        data = validated_data.copy()
+        question_list = data.pop('questions_list')
+        poll_model = Poll.objects.create(**data)
+        for question in question_list: 
+            Question.objects.create(**question, poll=poll_model)
+        updated_poll_model = Poll.objects.get(pk=poll_model.pk)
+        return updated_poll_model
 
 class AnswerSerializer(serializers.ModelSerializer):
     question = QuestionSerializer(many=False, required=False, read_only=True)

@@ -8,7 +8,8 @@ from rest_framework.response import Response
 
 from .models import Answer, Poll, Question, Report
 from .serializers import (AnswerSerializer, CreateReportSerializer,
-                          PollSerializer, QuestionSerializer, ReportSerializer)
+                          PollSerializer, QuestionSerializer, ReportSerializer,
+                          CreatePollSerializer)
 
 # Перенс логику create ReportViewSet в Сериализатор
 class ReportViewSet(viewsets.ModelViewSet):
@@ -68,23 +69,18 @@ class PollViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         self.check_permissions(self.request)
-        data = request.data.copy()
-        questions = data.pop('questions')
-        if questions == None or len(questions) == 0:
+        data = request.data
+        if "questions_list" in data:
+            questions = data.get('questions_list')
+            if questions == None or len(questions) == 0:
+                return Response(data={"detail": "put questions in poll"}, status=status.HTTP_400_BAD_REQUEST)
+        else: 
             return Response(data={"detail": "put questions in poll"}, status=status.HTTP_400_BAD_REQUEST)
-        poll_serializer = self.serializer_class(data=data)
+
+        poll_serializer = CreatePollSerializer(data=data)
         if poll_serializer.is_valid(raise_exception=True):
-            poll_serializer.save()
-            poll_model = Poll.objects.get(pk=poll_serializer.data['id'])
-            
-        # Создаем связанные вопросы
-        for question in questions: 
-            question_serializer = QuestionSerializer(data=question)
-            if question_serializer.is_valid(raise_exception=True):
-                question_serializer.save(poll=poll_model)
-    
-        new_pool_model = Poll.objects.get(pk=poll_serializer.data['id']) #Получаем Pool model с Вопросами 
-        poll_serializer = self.serializer_class(new_pool_model)
+            model = poll_serializer.save()
+        poll_serializer = self.serializer_class(model)
         return Response(data=poll_serializer.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, pk=None):
@@ -103,7 +99,9 @@ class PollViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         # По какой то причине нелья написать == 'list' or 'retrieve' 
         # т.к сбиваются права доступа на retrieve 
-        # Возможно разный порядок вызова прав доступа по умолчанию
+        # Возможно разный порядок вызова прав доступа при вызовеме метода action_map
+        # В самом фреймворке
+        # Можете сами проверить по тестам 
         if self.action == 'list':
             permission_classes = [permissions.AllowAny,]
         elif self.action == 'retrieve':

@@ -26,7 +26,7 @@ class TestAdminAPI(InitClass):
             "description": "New Test Poll",
             "date_start": "2020-05-23",
             "date_end": "2020-05-31",
-            "questions": [
+            "questions_list": [
                 {
                     "text": "How many u drink?",
                     "question_type": "TEXT_RESPONSE"
