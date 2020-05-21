@@ -1,0 +1,611 @@
+openapi: 3.0.2
+info:
+  title: ''
+  version: ''
+paths:
+  /api/v1/poll/:
+    get:
+      operationId: listPolls
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: integer
+                      readOnly: true
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    date_start:
+                      type: string
+                      format: date
+                    date_end:
+                      type: string
+                      format: date
+                    questions:
+                      type: array
+                      items:
+                        properties:
+                          id:
+                            type: integer
+                            readOnly: true
+                          text:
+                            type: string
+                          question_type:
+                            enum:
+                            - TEXT_RESPONSE
+                            - ONE_CHOICE_ANSWER
+                            - MULTIPLE_CHOICE_ANSWER
+                          answer_choices:
+                            type: object
+                        required:
+                        - text
+                        - question_type
+                      readOnly: true
+                  required:
+                  - name
+                  - description
+                  - date_start
+                  - date_end
+          description: ''
+    post:
+      operationId: createPoll
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                date_start:
+                  type: string
+                  format: date
+                date_end:
+                  type: string
+                  format: date
+              required:
+              - name
+              - description
+              - date_start
+              - date_end
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  date_start:
+                    type: string
+                    format: date
+                  date_end:
+                    type: string
+                    format: date
+                  questions:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        text:
+                          type: string
+                        question_type:
+                          enum:
+                          - TEXT_RESPONSE
+                          - ONE_CHOICE_ANSWER
+                          - MULTIPLE_CHOICE_ANSWER
+                        answer_choices:
+                          type: object
+                      required:
+                      - text
+                      - question_type
+                    readOnly: true
+                required:
+                - name
+                - description
+                - date_start
+                - date_end
+          description: ''
+  /api/v1/poll/{id}/:
+    get:
+      operationId: retrievePoll
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  date_start:
+                    type: string
+                    format: date
+                  date_end:
+                    type: string
+                    format: date
+                  questions:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        text:
+                          type: string
+                        question_type:
+                          enum:
+                          - TEXT_RESPONSE
+                          - ONE_CHOICE_ANSWER
+                          - MULTIPLE_CHOICE_ANSWER
+                        answer_choices:
+                          type: object
+                      required:
+                      - text
+                      - question_type
+                    readOnly: true
+                required:
+                - name
+                - description
+                - date_start
+                - date_end
+          description: ''
+    put:
+      operationId: partial_updatePoll
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                date_start:
+                  type: string
+                  format: date
+                date_end:
+                  type: string
+                  format: date
+              required:
+              - name
+              - description
+              - date_start
+              - date_end
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  date_start:
+                    type: string
+                    format: date
+                  date_end:
+                    type: string
+                    format: date
+                  questions:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        text:
+                          type: string
+                        question_type:
+                          enum:
+                          - TEXT_RESPONSE
+                          - ONE_CHOICE_ANSWER
+                          - MULTIPLE_CHOICE_ANSWER
+                        answer_choices:
+                          type: object
+                      required:
+                      - text
+                      - question_type
+                    readOnly: true
+                required:
+                - name
+                - description
+                - date_start
+                - date_end
+          description: ''
+    delete:
+      operationId: destroyPoll
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/question/{id}/:
+    get:
+      operationId: retrieveQuestion
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this Question.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  text:
+                    type: string
+                  question_type:
+                    enum:
+                    - TEXT_RESPONSE
+                    - ONE_CHOICE_ANSWER
+                    - MULTIPLE_CHOICE_ANSWER
+                  answer_choices:
+                    type: object
+                required:
+                - text
+                - question_type
+          description: ''
+    put:
+      operationId: partial_updateQuestion
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this Question.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                text:
+                  type: string
+                question_type:
+                  enum:
+                  - TEXT_RESPONSE
+                  - ONE_CHOICE_ANSWER
+                  - MULTIPLE_CHOICE_ANSWER
+                answer_choices:
+                  type: object
+              required:
+              - text
+              - question_type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  text:
+                    type: string
+                  question_type:
+                    enum:
+                    - TEXT_RESPONSE
+                    - ONE_CHOICE_ANSWER
+                    - MULTIPLE_CHOICE_ANSWER
+                  answer_choices:
+                    type: object
+                required:
+                - text
+                - question_type
+          description: ''
+    delete:
+      operationId: destroyQuestion
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this Question.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/report/:
+    get:
+      operationId: listReports
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: integer
+                      readOnly: true
+                    poll:
+                      type: string
+                      readOnly: true
+                    answers:
+                      type: array
+                      items:
+                        properties:
+                          question:
+                            properties:
+                              id:
+                                type: integer
+                                readOnly: true
+                              text:
+                                type: string
+                              question_type:
+                                enum:
+                                - TEXT_RESPONSE
+                                - ONE_CHOICE_ANSWER
+                                - MULTIPLE_CHOICE_ANSWER
+                              answer_choices:
+                                type: object
+                            required:
+                            - text
+                            - question_type
+                            type: object
+                            readOnly: true
+                          answer:
+                            type: string
+                        required:
+                        - answer
+                      readOnly: true
+                    user_report_id:
+                      type: integer
+                      nullable: true
+          description: ''
+    post:
+      operationId: createReport
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user_report_id:
+                  type: integer
+                  nullable: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  poll:
+                    type: string
+                    readOnly: true
+                  answers:
+                    type: array
+                    items:
+                      properties:
+                        question:
+                          properties:
+                            id:
+                              type: integer
+                              readOnly: true
+                            text:
+                              type: string
+                            question_type:
+                              enum:
+                              - TEXT_RESPONSE
+                              - ONE_CHOICE_ANSWER
+                              - MULTIPLE_CHOICE_ANSWER
+                            answer_choices:
+                              type: object
+                          required:
+                          - text
+                          - question_type
+                          type: object
+                          readOnly: true
+                        answer:
+                          type: string
+                      required:
+                      - answer
+                    readOnly: true
+                  user_report_id:
+                    type: integer
+                    nullable: true
+          description: ''
+  /api/v1/report/{id}/:
+    get:
+      operationId: retrieveReport
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  poll:
+                    type: string
+                    readOnly: true
+                  answers:
+                    type: array
+                    items:
+                      properties:
+                        question:
+                          properties:
+                            id:
+                              type: integer
+                              readOnly: true
+                            text:
+                              type: string
+                            question_type:
+                              enum:
+                              - TEXT_RESPONSE
+                              - ONE_CHOICE_ANSWER
+                              - MULTIPLE_CHOICE_ANSWER
+                            answer_choices:
+                              type: object
+                          required:
+                          - text
+                          - question_type
+                          type: object
+                          readOnly: true
+                        answer:
+                          type: string
+                      required:
+                      - answer
+                    readOnly: true
+                  user_report_id:
+                    type: integer
+                    nullable: true
+          description: ''
+  /api/v1/token/refresh/:
+    post:
+      operationId: CreateTokenRefresh
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh:
+                  type: string
+              required:
+              - refresh
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  refresh:
+                    type: string
+                required:
+                - refresh
+          description: ''
+  /api/v1/log_in/:
+    post:
+      operationId: CreateMyTokenObtainPair
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  writeOnly: true
+              required:
+              - username
+              - password
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                required:
+                - username
+          description: ''
+  /api/v1/question/:
+    post:
+      operationId: createQuestion
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                text:
+                  type: string
+                question_type:
+                  enum:
+                  - TEXT_RESPONSE
+                  - ONE_CHOICE_ANSWER
+                  - MULTIPLE_CHOICE_ANSWER
+                answer_choices:
+                  type: object
+              required:
+              - text
+              - question_type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  text:
+                    type: string
+                  question_type:
+                    enum:
+                    - TEXT_RESPONSE
+                    - ONE_CHOICE_ANSWER
+                    - MULTIPLE_CHOICE_ANSWER
+                  answer_choices:
+                    type: object
+                required:
+                - text
+                - question_type
+          description: ''

@@ -1,0 +1,8 @@
+django==2.2.10
+djangorestframework==3.11.0
+djangorestframework-simplejwt==4.4.0
+psycopg2-binary==2.8.5
+gunicorn==19.10.0
+drf-yasg
+pyyaml
+django-jsonfield

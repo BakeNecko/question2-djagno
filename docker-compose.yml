@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  questions-server:
+    restart: always
+    build:
+      context: ./server
+    command: gunicorn --chdir ./backend backend.wsgi:application --bind 0.0.0.0:8000
+    container_name: questions-server
+    ports:
+      - 8000:8000
