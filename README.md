@@ -1,15 +1,11 @@
 ## Запуск контейнера Docker: 
 sudo нужно использовать при необходимости 
 1. `sudo docker-compose up --buld`   #можно добавить флаг -d 
-2. `sudo service postgresql stop `
-3. `sudo docker-compose exec questions-database psql --username=postgres`
-4. `CREATE DATABASE questions_db OWNER postgres;` # Затем выходим из psql
-5. `sudo docker-compose exec questions-server python3 ./backend/manage.py makemigrations`
-6. `sudo docker-compose exec questions-server python3 ./backend/manage.py migrate`
-7. `sudo docker-compose exec questions-server python3 ./backend/manage.py createsupseruser`
 
-Получаем 2 сервиса nginx на localhost:8080 и Gunicorn на localhost:8000
-Nginx нормально, не настроен, не обрабатывает staticfiles и media. Только проксирует запросы. Он только для демонстрации.
+Чтобы создать супер пользователя:
+`sudo docker-compose exec questions-server python3 ./backend/manage.py createsupseruser`
+
+Получаем 1 сервис Gunicorn на localhost:8000
 
 **Расширенная докумаентация для API доступна по двум URL:**
 
@@ -34,24 +30,30 @@ Nginx нормально, не настроен, не обрабатывает s
 3. `poll/` Метод поддерживающий 4 типа запросов **GET**, **PUT**, **DELETE**, **POST**.
     GET метод разрешен для всех и возращает все активные на данный момент опросы
     POST защищенный метод для администраторов, создающий опросы. Пример Данных POST запроса:
-    ```json
-    {
-      "name": "Test Poll",  
-      "description": "New Test Poll",
-      "date_start": "2020-05-23",
-      "date_end": "2020-05-31",
-      "questions": [   
-      // Это поле соделжит в себе вопросы этого опроса При сохранении модели Poll они будут связанны с ним 
-          {
-              "text": "How many u drink?",
-              "question_type": "TEXT_RESPONSE"
-          },
-          {
-              "text": "New Questoin",
-              "question_type": "MULTIPLE_CHOICE_ANSWER"
-          }
-      ]
-    }```
+    ```json{
+    "name": "New Test Poll",
+    "description": "New Test Poll",
+    "date_start": "2020-05-23",
+    "date_end": "2020-05-31",
+    "questions": [
+        {
+            "text": "How many u drink?",
+            "question_type": "TEXT_RESPONSE"
+        },
+        {
+            "text": "New Questoin",
+            "question_type": "MULTIPLE_CHOICE_ANSWER",
+            "answer_choices": {
+                "1": "first answer",
+                "2": "secont answer"
+            }
+        }
+    ]}
+    }
+   ```
+   Варианты question_type: ONE_CHOICE_ANSWER, TEXT_RESPONSE, MULTIPLE_CHOICE_ANSWER
+   Если вопрос с множеством ответов то в answer_choices нужно передать варианты ответа на него.
+   
  4 `poll/<int:pk>/` Метод поддерживает 3 типа запросов **GET DELETE PUT**, не трудно догадаться, 
                     что он работает с конкретной моделью опроса.
                     
@@ -74,12 +76,17 @@ Nginx нормально, не настроен, не обрабатывает s
 5.  `question/` Метод (Толко для админов) для создания вопроса принимает **POST** запрос. Пример данных:
 ```json
         {
-            "poll_id": 12, 
-            "text": "New test",
-            "question_type": "ONE_CHOICE_ANSWER"
+            "poll_id": 1, 
+            "question_type": "MULTIPLE_CHOICE_ANSWER",
+            "text": "Text of question",
+            "answer_choices": {
+                "1": "first answer",
+                "2": "secont answer"
+            }
         }
 ```     
       poll_id является id Опроса, для которого создается вопрос.
+      в answer_choices добавляются варинты выбора ответа
       Удобный метод для добавленияя вопрос в уже созданный опросник.
  
  
@@ -90,10 +97,15 @@ Nginx нормально, не настроен, не обрабатывает s
      
      PUT: Примеры данных
      ```json
-     {
-    "text": "New test test",
-    "question_type": "ONE_CHOICE_ANSWER"
-    }
+             {
+                {
+                    "question_type": "MULTIPLE_CHOICE_ANSWER",
+                    "text": "New Text of Question",
+                    "answer_choices": {
+                        "1": "New  answer",
+                        "2": "secont answer"
+                    }
+                }
     ```
     DELETE такой же как и GET Пример: ``question/11/`
     
@@ -101,33 +113,35 @@ Nginx нормально, не настроен, не обрабатывает s
 7. `report/` **POST** Метод для создания ответа пользователя. Разрешен всем, даже анонимным.
     Данные структурируются так:
     ```json
-    { 
-        "poll_id": 3 
-        "answers": [
-            {
-                "answer": "First answer",
-                "question_id": 124,              
-            },
-            {
-                "answer": "Two answer",
-                "question_id": 521,              
-            },
-            {
-                "answer": "Three answer",
-                "question_id": 123,              
-            }
-        ]
-    }
+        {
+            "poll_id": 1,
+            "user_report_id": 123, 
+            "answers_list": [
+                    {
+                        "answer": "First answer",
+                        "question_id": 1          
+                    },
+                    {
+                        "answer": "1 2",
+                        "question_id": 2        
+                    }
+            ]
+        }
     ```
     В данном примере poll_id это id Опросника, а question_id это id вопроса 
     с которым связывается соответсвующий ответ пользователя. 
+    Если ответ содерижт множетсво вариантов ответа то их нужно указывать в строку разделяя проебалми.
+    В соответствии с answer_choices обьетка question (см 5 endpoint) 
+    user_report_id это уникальный ID пользователя для получения и связывания с ним его репортов. 
+  
     
     Также есть метод **GET** 
     который возращает список всех опросников пройденных пользователем вызывается просто 
     `report/` всю необходимую информацю View берет из request.
+    Но в этот раз прямой связи нет у каждого user есть поле report_id, по которому он получает ответы.
     
 8. `report/<int:pk>/` Метод для получения информации о конкретном отчете пользователя. 
     Метод защищен, и не дает другим пользователям доступ к ответм других юзеров. 
-    т.к queryset фильтруется на основе request.user
+    т.к queryset фильтруется на основе уникально поля user модели.
     Но также предусмнотрнно что администратор может получить доступ к любому представлению.
     Вызывается просто: `report/23/` где 23 это id отчета.
