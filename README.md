@@ -6,6 +6,7 @@ sudo нужно использовать при необходимости
 
 Чтобы создать супер пользователя:
 `sudo docker-compose exec questions-server python3 ./backend/manage.py createsupseruser`
+(По умолчанию супер пользователь admin/admin)
 
 Получаем 1 сервис Gunicorn на localhost:8000
 
