@@ -7,6 +7,8 @@ from question.models import Poll, Question
 from .init_class import InitClass
 import json
 
+# Тесты не проверяют опасных ситуаций 
+# Но в реальном проекте я бы их точно прописал 
 class TestAdminAPI(InitClass):
 
   def test_pool_api(self):
