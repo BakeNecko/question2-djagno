@@ -55,10 +55,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def create(self, request):
         self.check_permissions
         data = request.data
-        if data['question_type'] == "MULTIPLE_CHOICE_ANSWER" or "ONE_CHOICE_ANSWER": 
-            if not 'answer_choices' in data or len(data['answer_choices']) == 0: 
-                return Response(data={'detail': 'put answer_choices to request'}, 
-                                status=status.HTTP_400_BAD_REQUEST)
         poll_id = data['poll_id']
         poll = get_object_or_404(Poll, pk=poll_id)
         question_serializer = QuestionSerializer(data=data)
@@ -74,13 +70,6 @@ class PollViewSet(viewsets.ModelViewSet):
     def create(self, request):
         self.check_permissions(self.request)
         data = request.data
-        if "questions_list" in data:
-            questions = data.get('questions_list')
-            if questions == None or len(questions) == 0:
-                return Response(data={"detail": "put questions in poll"}, status=status.HTTP_400_BAD_REQUEST)
-        else: 
-            return Response(data={"detail": "put questions in poll"}, status=status.HTTP_400_BAD_REQUEST)
-
         poll_serializer = CreatePollSerializer(data=data)
         if poll_serializer.is_valid(raise_exception=True):
             model = poll_serializer.save()

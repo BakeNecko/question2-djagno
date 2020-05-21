@@ -36,8 +36,16 @@ class QuestionSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "text": {"required": True},
             "question_type": {"required": True},
+            "answer_choices": {"required": False},
         }
-        depth = 1  
+
+    
+    def validate(self, validated_data):
+        # print(validated_data)
+        if validated_data['question_type'] == "MULTIPLE_CHOICE_ANSWER" or "ONE_CHOICE_ANSWER": 
+             if  'answer_choices' not in validated_data or len(validated_data['answer_choices']) == 0: 
+                raise serializers.ValidationError(detail='put answer_choices in question', code=400)
+        return  validated_data
 
 class PollSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
@@ -82,6 +90,10 @@ class PollSerializer(serializers.ModelSerializer):
 class CreatePollSerializer(serializers.ModelSerializer):
     questions_list = serializers.ListField(child=serializers.JSONField())
     
+    def validate_questions_list(self, value):
+        if len(value) == 0:
+            raise serializers.ValidationError('pute some question to questoins_list')
+        return value
     class Meta:
         model = Poll
         fields = [
@@ -152,7 +164,6 @@ class CreateReportSerializer(serializers.ModelSerializer):
         answers =  data.pop('answers_list')
         poll_id = data.pop('poll_id')
         poll = get_object_or_404(Poll, pk=poll_id)
-        print(data)
         report_model = Report.objects.create(**data, poll=poll)
         for answer in answers:
             question = get_object_or_404(Question, pk=answer['question_id']) 
