@@ -118,7 +118,10 @@ class CreatePollSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         data = validated_data.copy()
         question_list = data.pop('questions_list')
-        poll_model = Poll.objects.create(**data)
+        poll_serializer = PollSerializer(data=data) 
+        if poll_serializer.is_valid(raise_exception=True):
+            poll_model = poll_serializer.save()
+        # associate questoins and poll model
         for question in question_list:  # TODO: Добавить инкапсуляцию на уровне свзанных моделей
             question_serializer = QuestionSerializer(data=question)
             if question_serializer.is_valid(raise_exception=True):
