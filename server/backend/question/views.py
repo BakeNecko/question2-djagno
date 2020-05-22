@@ -30,9 +30,8 @@ class ReportViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         data = request.data.copy()
-        self.check_permissions    
+        self.check_permissions
         serializer = CreateReportSerializer(data=data)
-
         if serializer.is_valid(raise_exception=True):
             if 'user_report_id' in data:
                 model = serializer.save()
@@ -41,7 +40,6 @@ class ReportViewSet(viewsets.ModelViewSet):
                     model = serializer.save(user_report_id=request.user.report_id)
                 elif request.user.is_anonymous == True: 
                     model = serializer.save()
-
         serializer = ReportSerializer(model, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
@@ -55,11 +53,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def create(self, request):
         self.check_permissions
         data = request.data
-        poll_id = data['poll_id']
-        poll = get_object_or_404(Poll, pk=poll_id)
+        #poll_id = data['poll_id']
+        #poll = get_object_or_404(Poll, pk=poll_id)
         question_serializer = QuestionSerializer(data=data)
         if question_serializer.is_valid(raise_exception=True):
-            question_serializer.save(poll=poll)
+            question_serializer.save()
         return Response(question_serializer.data, status=status.HTTP_201_CREATED)
 
     

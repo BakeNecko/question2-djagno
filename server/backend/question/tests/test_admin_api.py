@@ -94,7 +94,7 @@ class TestAdminAPI(InitClass):
         default_user.save()
         
         question_data =  {
-                "poll_id": poll_model.pk, 
+                "poll": poll_model.pk, 
                 "question_type": "MULTIPLE_CHOICE_ANSWER",
                 "text": "Added of question",
                 "answer_choices": {
@@ -131,15 +131,15 @@ class TestAdminAPI(InitClass):
         questoins = Question.objects.all()
         # Check craete Report Logic
         report_data = {
-            "poll_id": poll_model.pk,
+            "poll": poll_model.pk,
             "answers_list": [
                 {
                 "answer": "First answer",
-                "question_id": questoins[0].pk
+                "question": questoins[0].pk
                 },
                 {
                 "answer": "1 2",
-                "question_id":  questoins[1].pk
+                "question":  questoins[1].pk
                 }
             ]
             }
@@ -150,16 +150,16 @@ class TestAdminAPI(InitClass):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         report_data_with_id = {
-            "poll_id": poll_model.pk,
+            "poll": poll_model.pk,
             "user_report_id": another_user.report_id,
             "answers_list": [
                 {
                 "answer": "First answer",
-                "question_id": questoins[0].pk
+                "question": questoins[0].pk
                 },
                 {
                 "answer": "1 2",
-                "question_id":  questoins[1].pk
+                "question":  questoins[1].pk
                 }
             ]
             }

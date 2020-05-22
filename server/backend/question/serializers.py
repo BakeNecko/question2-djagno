@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
                                                   TokenObtainSerializer)
 
-from .models import Answer, Poll, Question, Report
+from .models import Answer, Poll, Question, Report, Answer
 
 User = get_user_model()
 
@@ -140,7 +140,7 @@ class CreatePollSerializer(serializers.ModelSerializer):
         return updated_poll_model
 
 class AnswerSerializer(serializers.ModelSerializer):
-    question = QuestionSerializer(many=False, required=False, read_only=True)
+    question = serializers.PrimaryKeyRelatedField(required=True, queryset=Question.objects.all())
     class Meta:
         model = Answer
         fields = [
@@ -151,7 +151,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class ReportSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, read_only=True)
-    poll = serializers.HyperlinkedRelatedField(required=False,many=False, read_only=True, view_name='poll_detail')
+    poll = serializers.PrimaryKeyRelatedField(required=True, queryset=Poll.objects.all())
     
     class Meta:
         model = Report
@@ -164,29 +164,25 @@ class ReportSerializer(serializers.ModelSerializer):
     
 class CreateReportSerializer(serializers.ModelSerializer):
     answers_list = serializers.ListField(child=serializers.JSONField())
-    poll_id = serializers.IntegerField(required=True)
-   
+    poll = serializers.PrimaryKeyRelatedField(required=True, queryset=Poll.objects.all())
+
     class Meta:
         model = Report
         fields = [
             'id',
             'answers_list',
-            'poll_id',
+            'poll',
             'user_report_id',
         ]
 
-    def create(self, validated_data): 
+    def create(self, validated_data):
         data = validated_data.copy()
-        answers =  data.pop('answers_list')
-        poll_id = data.pop('poll_id')
-        poll = get_object_or_404(Poll, pk=poll_id)
-        report_model = Report.objects.create(**data, poll=poll)
-        for answer in answers:
-            question = get_object_or_404(Question, pk=answer['question_id']) 
-            answer_serializer = AnswerSerializer(data=answer)
-            if answer_serializer.is_valid(raise_exception=True):
-                answer_serializer.save(report=report_model, question=question)
-        report_model.poll = poll
-        report_model.save()
-        new_report_model = Report.objects.get(pk=report_model.pk)
-        return new_report_model
+        answers_list = data.pop('answers_list')
+        report_model = Report.objects.create(**data)
+
+        for ans in answers_list: 
+            ans_serializer = AnswerSerializer(data=ans)
+            if ans_serializer.is_valid(raise_exception=True):
+                ans_serializer.save(report=report_model)
+
+        return report_model
