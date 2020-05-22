@@ -1,16 +1,18 @@
-from django.core.mail import EmailMessage, send_mail
+from datetime import date
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage, send_mail
 from django.http import Http404
-from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
-
+from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions, serializers, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
                                                   TokenObtainSerializer)
-from .models import Report, Answer, Question, Poll
+
+from .models import Answer, Poll, Question, Report
 
 User = get_user_model()
 
@@ -23,8 +25,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 class QuestionSerializer(serializers.ModelSerializer):
-    answer_choices = serializers.JSONField(required=False)
+    question_type_constants = ['TEXT_RESPONSE', 'ONE_CHOICE_ANSWER', 'MULTIPLE_CHOICE_ANSWER']
 
+    answer_choices = serializers.JSONField(required=False)
+    question_type = serializers.ChoiceField(choices=question_type_constants)
     class Meta:
         model = Question
         fields = [
@@ -38,12 +42,10 @@ class QuestionSerializer(serializers.ModelSerializer):
             "question_type": {"required": True},
             "answer_choices": {"required": False},
         }
-
     
     def validate(self, validated_data):
-        # print(validated_data)
-        if validated_data['question_type'] == "MULTIPLE_CHOICE_ANSWER" or "ONE_CHOICE_ANSWER": 
-             if  'answer_choices' not in validated_data or len(validated_data['answer_choices']) == 0: 
+        if validated_data['question_type'] in ["MULTIPLE_CHOICE_ANSWER",  "ONE_CHOICE_ANSWER"]:
+            if  'answer_choices' not in validated_data or len(validated_data['answer_choices']) == 0: 
                 raise serializers.ValidationError(detail='put answer_choices in question', code=400)
         return  validated_data
 
@@ -118,7 +120,9 @@ class CreatePollSerializer(serializers.ModelSerializer):
         question_list = data.pop('questions_list')
         poll_model = Poll.objects.create(**data)
         for question in question_list: 
-            Question.objects.create(**question, poll=poll_model)
+            question_serializer = QuestionSerializer(data=question)
+            if question_serializer.is_valid(raise_exception=True):
+                question_serializer.save(poll=poll_model)
         updated_poll_model = Poll.objects.get(pk=poll_model.pk)
         return updated_poll_model
 

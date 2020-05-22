@@ -90,14 +90,8 @@ class PollViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_permissions(self):
-        # По какой то причине нелья написать == 'list' or 'retrieve' 
-        # т.к сбиваются права доступа на retrieve 
-        # Возможно разный порядок вызова прав доступа при вызовеме метода action_map
-        # В самом фреймворке
-        # Можете сами проверить по тестам 
-        if self.action == 'list':
-            permission_classes = [permissions.AllowAny,]
-        elif self.action == 'retrieve':
+        # Врено обьеденил проверки я пытался их согласовать через or это было ошибкой 
+        if self.action in ['list','retrieve']:
             permission_classes = [permissions.AllowAny,]
         else:
             permission_classes = [permissions.IsAdminUser,]

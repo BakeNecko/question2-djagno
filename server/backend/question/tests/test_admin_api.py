@@ -31,7 +31,8 @@ class TestAdminAPI(InitClass):
             "questions_list": [
                 {
                     "text": "How many u drink?",
-                    "question_type": "TEXT_RESPONSE"
+                    "question_type": "TEXT_RESPONSE",
+                    
                 },
                 {
                     "text": "New Questoin",
