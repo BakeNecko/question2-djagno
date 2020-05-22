@@ -28,7 +28,7 @@ class ReportViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         data = request.data.copy()
-        if request.user.is_anonymous != True: # TODO: Move this to permissions
+        if request.user.is_anonymous == False: # TODO: Move this to permissions
             if request.user.is_staff: 
                 pass
             else: 
@@ -90,7 +90,7 @@ class PollViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_permissions(self):
-        # Врено обьеденил проверки я пытался их согласовать через or это было ошибкой 
+        # Врено объеденил проверки я пытался их согласовать через or это было ошибкой 
         if self.action in ['list','retrieve']:
             permission_classes = [permissions.AllowAny,]
         else:
