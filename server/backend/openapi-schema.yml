@@ -44,6 +44,8 @@ paths:
                             - MULTIPLE_CHOICE_ANSWER
                           answer_choices:
                             type: object
+                          poll:
+                            type: integer
                         required:
                         - text
                         - question_type
@@ -112,6 +114,8 @@ paths:
                           - MULTIPLE_CHOICE_ANSWER
                         answer_choices:
                           type: object
+                        poll:
+                          type: integer
                       required:
                       - text
                       - question_type
@@ -167,6 +171,8 @@ paths:
                           - MULTIPLE_CHOICE_ANSWER
                         answer_choices:
                           type: object
+                        poll:
+                          type: integer
                       required:
                       - text
                       - question_type
@@ -241,6 +247,8 @@ paths:
                           - MULTIPLE_CHOICE_ANSWER
                         answer_choices:
                           type: object
+                        poll:
+                          type: integer
                       required:
                       - text
                       - question_type
@@ -291,6 +299,8 @@ paths:
                     - MULTIPLE_CHOICE_ANSWER
                   answer_choices:
                     type: object
+                  poll:
+                    type: integer
                 required:
                 - text
                 - question_type
@@ -318,6 +328,8 @@ paths:
                   - MULTIPLE_CHOICE_ANSWER
                 answer_choices:
                   type: object
+                poll:
+                  type: integer
               required:
               - text
               - question_type
@@ -339,6 +351,8 @@ paths:
                     - MULTIPLE_CHOICE_ANSWER
                   answer_choices:
                     type: object
+                  poll:
+                    type: integer
                 required:
                 - text
                 - question_type
@@ -371,39 +385,24 @@ paths:
                       type: integer
                       readOnly: true
                     poll:
-                      type: string
-                      readOnly: true
+                      type: integer
                     answers:
                       type: array
                       items:
                         properties:
                           question:
-                            properties:
-                              id:
-                                type: integer
-                                readOnly: true
-                              text:
-                                type: string
-                              question_type:
-                                enum:
-                                - TEXT_RESPONSE
-                                - ONE_CHOICE_ANSWER
-                                - MULTIPLE_CHOICE_ANSWER
-                              answer_choices:
-                                type: object
-                            required:
-                            - text
-                            - question_type
-                            type: object
-                            readOnly: true
+                            type: integer
                           answer:
                             type: string
                         required:
+                        - question
                         - answer
                       readOnly: true
                     user_report_id:
                       type: integer
                       nullable: true
+                  required:
+                  - poll
           description: ''
     post:
       operationId: createReport
@@ -413,9 +412,13 @@ paths:
           application/json:
             schema:
               properties:
+                poll:
+                  type: integer
                 user_report_id:
                   type: integer
                   nullable: true
+              required:
+              - poll
       responses:
         '200':
           content:
@@ -426,39 +429,24 @@ paths:
                     type: integer
                     readOnly: true
                   poll:
-                    type: string
-                    readOnly: true
+                    type: integer
                   answers:
                     type: array
                     items:
                       properties:
                         question:
-                          properties:
-                            id:
-                              type: integer
-                              readOnly: true
-                            text:
-                              type: string
-                            question_type:
-                              enum:
-                              - TEXT_RESPONSE
-                              - ONE_CHOICE_ANSWER
-                              - MULTIPLE_CHOICE_ANSWER
-                            answer_choices:
-                              type: object
-                          required:
-                          - text
-                          - question_type
-                          type: object
-                          readOnly: true
+                          type: integer
                         answer:
                           type: string
                       required:
+                      - question
                       - answer
                     readOnly: true
                   user_report_id:
                     type: integer
                     nullable: true
+                required:
+                - poll
           description: ''
   /api/v1/report/{id}/:
     get:
@@ -480,39 +468,24 @@ paths:
                     type: integer
                     readOnly: true
                   poll:
-                    type: string
-                    readOnly: true
+                    type: integer
                   answers:
                     type: array
                     items:
                       properties:
                         question:
-                          properties:
-                            id:
-                              type: integer
-                              readOnly: true
-                            text:
-                              type: string
-                            question_type:
-                              enum:
-                              - TEXT_RESPONSE
-                              - ONE_CHOICE_ANSWER
-                              - MULTIPLE_CHOICE_ANSWER
-                            answer_choices:
-                              type: object
-                          required:
-                          - text
-                          - question_type
-                          type: object
-                          readOnly: true
+                          type: integer
                         answer:
                           type: string
                       required:
+                      - question
                       - answer
                     readOnly: true
                   user_report_id:
                     type: integer
                     nullable: true
+                required:
+                - poll
           description: ''
   /api/v1/token/refresh/:
     post:
@@ -584,6 +557,8 @@ paths:
                   - MULTIPLE_CHOICE_ANSWER
                 answer_choices:
                   type: object
+                poll:
+                  type: integer
               required:
               - text
               - question_type
@@ -605,7 +580,19 @@ paths:
                     - MULTIPLE_CHOICE_ANSWER
                   answer_choices:
                     type: object
+                  poll:
+                    type: integer
                 required:
                 - text
                 - question_type
+          description: ''
+  /api/v1/report/user_report_id/:
+    post:
+      operationId: Createuser_report_id
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
           description: ''
