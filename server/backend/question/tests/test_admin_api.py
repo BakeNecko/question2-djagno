@@ -6,6 +6,7 @@ from question.models import Poll, Question
 
 from .init_class import InitClass
 import json
+from question.models import Question
 
 # Тесты не проверяют опасных ситуаций 
 # Но в реальном проекте я бы их точно прописал 
@@ -126,3 +127,47 @@ class TestAdminAPI(InitClass):
         # Admint change question 
         response, question_model = self.change_quiestion(admin_client, change_question_data, question_model.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        questoins = Question.objects.all()
+        # Check craete Report Logic
+        report_data = {
+            "poll_id": poll_model.pk,
+            "answers_list": [
+                {
+                "answer": "First answer",
+                "question_id": questoins[0].pk
+                },
+                {
+                "answer": "1 2",
+                "question_id":  questoins[1].pk
+                }
+            ]
+            }
+        
+        # Anon user create report
+        anon_client = self.anon_client() 
+        response, report_model = self.create_report(default_client, report_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        report_data_with_id = {
+            "poll_id": poll_model.pk,
+            "user_report_id": another_user.report_id,
+            "answers_list": [
+                {
+                "answer": "First answer",
+                "question_id": questoins[0].pk
+                },
+                {
+                "answer": "1 2",
+                "question_id":  questoins[1].pk
+                }
+            ]
+            }
+        # Anon usre cant create report with user_report_id 
+        response, report_model = self.create_report(default_client, report_data_with_id)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # user try create report not with his id    
+        response, report_model = self.create_report(default_client, report_data_with_id)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+

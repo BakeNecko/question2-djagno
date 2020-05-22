@@ -23,6 +23,10 @@ class InitClass(APITestCase, URLPatternsTestCase):
         client = self.login_user(access)
         return user, client
 
+    def anon_client(self):
+        client = APIClient()
+        return client
+    
     def data_create_user(self,data):
         user = self.User.objects.create(**data)
         access = AccessToken.for_user(user)

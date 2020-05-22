@@ -27,5 +27,4 @@ class ReportCreatePermissions(BasePermission):
               if request.data['user_report_id'] is not None: 
                   return False
       else:
-        print('this')
         return True   
