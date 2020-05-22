@@ -119,7 +119,7 @@ class CreatePollSerializer(serializers.ModelSerializer):
         data = validated_data.copy()
         question_list = data.pop('questions_list')
         poll_model = Poll.objects.create(**data)
-        for question in question_list: 
+        for question in question_list:  # TODO: Добавить инкапсуляцию на уровне свзанных моделей
             question_serializer = QuestionSerializer(data=question)
             if question_serializer.is_valid(raise_exception=True):
                 question_serializer.save(poll=poll_model)
@@ -148,6 +148,7 @@ class ReportSerializer(serializers.ModelSerializer):
             'answers',
             'user_report_id',
         ]
+
 
     
 class CreateReportSerializer(serializers.ModelSerializer):

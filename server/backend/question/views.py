@@ -11,7 +11,7 @@ from .serializers import (AnswerSerializer, CreateReportSerializer,
                           PollSerializer, QuestionSerializer, ReportSerializer,
                           CreatePollSerializer)
 
-# Перенс логику create ReportViewSet в Сериализатор
+# Move create-logic ReportViewSet в Serializer
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
     permission_classes = [permissions.AllowAny, ] 
@@ -28,7 +28,7 @@ class ReportViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         data = request.data.copy()
-        if request.user.is_anonymous != True: # TODO: перенести это в permissions
+        if request.user.is_anonymous != True: # TODO: Move this to permissions
             if request.user.is_staff: 
                 pass
             else: 
@@ -86,7 +86,7 @@ class PollViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         self.check_permissions
-        queryset = Poll.objects.filter(date_end__gte=date.today())
+        queryset = Poll.objects.get_active_poll()  # See PollManger in models.py
         return queryset
 
     def get_permissions(self):

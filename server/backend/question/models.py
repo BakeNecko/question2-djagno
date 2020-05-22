@@ -10,11 +10,18 @@ import jsonfield
 class MyUser(AbstractUser):
     report_id = models.BigIntegerField(blank=True,null=True, unique=True)
 
+
+class PollManger(models.Manager):
+    def get_active_poll(self):
+        return super(PollManger, self).get_queryset().filter(date_end__gte=date.today())
+
 class Poll(models.Model):
     name = models.CharField(blank=False, max_length=40, null=False)
     description = models.TextField(blank=False, null=False)
     date_start = models.DateField(blank=False, null=False)
     date_end = models.DateField(blank=False, null=False)
+
+    objects = PollManger()
 
     @property
     def is_active(self):
