@@ -24,7 +24,7 @@ class ReportViewSet(viewsets.ModelViewSet):
             if user.is_staff:
                 return Report.objects.all()
             else: 
-                return Report.objects.filter(user_report_id=user.user_report_id)
+                return Report.objects.filter(user_report_id=user.report_id)
         else:
             return None
 

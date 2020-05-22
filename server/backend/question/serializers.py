@@ -26,7 +26,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     question_type_constants = ['TEXT_RESPONSE', 'ONE_CHOICE_ANSWER', 'MULTIPLE_CHOICE_ANSWER']
-
+    poll = serializers.PrimaryKeyRelatedField(required=False, queryset=Poll.objects.all())
     answer_choices = serializers.JSONField(required=False)
     question_type = serializers.ChoiceField(choices=question_type_constants)
     class Meta:
@@ -36,6 +36,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             'text',
             'question_type',
             'answer_choices',
+            'poll',
         ]
         extra_kwargs = {
             "text": {"required": True},
