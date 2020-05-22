@@ -5,11 +5,13 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 
 from .models import Answer, Poll, Question, Report
 from .serializers import (AnswerSerializer, CreateReportSerializer,
                           PollSerializer, QuestionSerializer, ReportSerializer,
                           CreatePollSerializer)
+from .permissoins import ReportIDPermissions
 
 # Move create-logic ReportViewSet в Serializer
 class ReportViewSet(viewsets.ModelViewSet):
@@ -96,3 +98,13 @@ class PollViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [permissions.IsAdminUser,]
         return [permission() for permission in permission_classes]
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated, ReportIDPermissions])
+def user_report_id(request):
+    data = request.data
+    user_report_id = data['user_report_id']
+    reports = Report.objects.filter(user_report_id=user_report_id)
+    report_data = ReportSerializer(reports, many=True, context={'request': request}).data
+    return Response(data=report_data, status=status.HTTP_200_OK)
