@@ -92,10 +92,6 @@ class PollSerializer(serializers.ModelSerializer):
 class CreatePollSerializer(serializers.ModelSerializer):
     questions_list = serializers.ListField(child=serializers.JSONField())
     
-    def validate_questions_list(self, value):
-        if len(value) == 0:
-            raise serializers.ValidationError('pute some question to questoins_list')
-        return value
     class Meta:
         model = Poll
         fields = [
@@ -113,8 +109,21 @@ class CreatePollSerializer(serializers.ModelSerializer):
             "date_end": {"required": True},
             "questions_list": {"required": True},
         }
-        depth = 1
-    
+   
+    # Это поле можно внести в validate но я решил использовать 
+    # шаблон validate_<field name> для проверки конкретного поля 
+    def validate_questions_list(self, value):
+        if len(value) == 0:
+            raise serializers.ValidationError('pute some question to questoins_list')
+        return value
+
+    def validate(self, data):
+        if data['date_start'] < date.today(): 
+            raise serializers.ValidationError('Create correct start data', code=400)
+        elif data['date_start'] > data['date_end']:
+            raise serializers.ValidationError('Create correct start/end data', code=400)
+        return data
+
     def create(self, validated_data):
         data = validated_data.copy()
         question_list = data.pop('questions_list')
