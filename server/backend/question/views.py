@@ -86,7 +86,7 @@ class PollViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         self.check_permissions
-        queryset = Poll.objects.get_active_poll()  # See PollManger in models.py
+        queryset = Poll.objects.get_active_poll()  # Check PollManger in models.py
         return queryset
 
     def get_permissions(self):
