@@ -11,12 +11,12 @@ from .models import Answer, Poll, Question, Report
 from .serializers import (AnswerSerializer, CreateReportSerializer,
                           PollSerializer, QuestionSerializer, ReportSerializer,
                           CreatePollSerializer)
-from .permissoins import ReportIDPermissions
+from .permissoins import ReportIDPermissions, ReportCreatePermissions
 
 # Move create-logic ReportViewSet в Serializer
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
-    permission_classes = [permissions.AllowAny, ] 
+    permission_classes = [permissions.AllowAny, ReportCreatePermissions] 
 
     def get_queryset(self):
         user = self.request.user
@@ -30,21 +30,19 @@ class ReportViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         data = request.data.copy()
-        if request.user.is_anonymous == False: # TODO: Move this to permissions
-            if request.user.is_staff: 
-                pass
-            else: 
-                if request.user.report_id != request.data['user_report_id']:
-                    return Response(data={'detail': 'U do not have permission for this action'}, 
-                                          status=status.HTTP_403_FORBIDDEN)
-        else: 
-            if request.data['user_report_id'] is not None: 
-                return Response(data={'detail': 'U do not have permission for this action'}, 
-                                        status=status.HTTP_403_FORBIDDEN)            
+        self.check_permissions    
         serializer = CreateReportSerializer(data=data)
+
         if serializer.is_valid(raise_exception=True):
-            model = serializer.save()
-            serializer = ReportSerializer(model, context={'request': request})
+            if 'user_report_id' in data:
+                model = serializer.save()
+            else: 
+                if request.user.is_anonymous == False: 
+                    model = serializer.save(user_report_id=request.user.report_id)
+                elif request.user.is_anonymous == True: 
+                    model = serializer.save()
+
+        serializer = ReportSerializer(model, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 

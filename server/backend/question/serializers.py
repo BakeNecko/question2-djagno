@@ -151,8 +151,6 @@ class ReportSerializer(serializers.ModelSerializer):
             'answers',
             'user_report_id',
         ]
-
-
     
 class CreateReportSerializer(serializers.ModelSerializer):
     answers_list = serializers.ListField(child=serializers.JSONField())
