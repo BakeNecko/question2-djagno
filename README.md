@@ -34,43 +34,45 @@ sudo нужно использовать при необходимости
 3. `poll/` Метод поддерживающий 4 типа запросов **GET**, **PUT**, **DELETE**, **POST**.
    GET метод разрешен для всех и возращает все активные на данный момент опросы.
    Производя пагинацию по 20 Опросов. В сумме возращая 100 овопросов.
-   Пример ответа на GET запрос: 
+   Пример ответа на GET запрос:
+
    ```json
-        {
-          "count": 3,
-          "next": "http://localhost:8000/api/v1/poll/?page=2",
-          "previous": null,
-          "results": [
-              {
-                  "id": 4,
-                  "name": "Change Test Pool",
-                  "description": "Change New Test Poll",
-                  "published": "2020-05-23",
-                  "date_start": "2020-05-30",
-                  "date_end": "2020-05-31",
-                  "questions": [
-                      {
-                          "id": 10,
-                          "text": "How many u drink?",
-                          "question_type": "TEXT_RESPONSE",
-                          "answer_choices": null,
-                          "poll": 4
-                      },
-                      {
-                          "id": 11,
-                          "text": "New Questoin",
-                          "question_type": "MULTIPLE_CHOICE_ANSWER",
-                          "answer_choices": {
-                              "1": "first answer",
-                              "2": "secont answer"
-                          },
-                          "poll": 4
-                      }
-                  ]
-              }
-          ]
-      }
+   {
+     "count": 3,
+     "next": "http://localhost:8000/api/v1/poll/?page=2",
+     "previous": null,
+     "results": [
+       {
+         "id": 4,
+         "name": "Change Test Pool",
+         "description": "Change New Test Poll",
+         "published": "2020-05-23",
+         "date_start": "2020-05-30",
+         "date_end": "2020-05-31",
+         "questions": [
+           {
+             "id": 10,
+             "text": "How many u drink?",
+             "question_type": "TEXT_RESPONSE",
+             "answer_choices": null,
+             "poll": 4
+           },
+           {
+             "id": 11,
+             "text": "New Questoin",
+             "question_type": "MULTIPLE_CHOICE_ANSWER",
+             "answer_choices": {
+               "1": "first answer",
+               "2": "secont answer"
+             },
+             "poll": 4
+           }
+         ]
+       }
+     ]
+   }
    ```
+
    POST защищенный метод для администраторов, создающий опросы. Пример Данных POST запроса:
 
    ```json
@@ -176,6 +178,7 @@ DELETE такой же как и GET Пример: ``question/11/`
    }
    ```
 
+   **Ответить на определенный Poll можно только 1н раз, дргуие попытки ответить на опрос будут блокированны**
    В данном примере poll_id это id Опросника, а question_id это id вопроса
    с которым связывается соответсвующий ответ пользователя.
    Если ответ содерижт множетсво вариантов ответа то их нужно указывать в строку разделяя проебалми.

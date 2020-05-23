@@ -1,5 +1,6 @@
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
-from .models import Report
+from .models import Report, Poll
+from django.db.models import Q
 
 class ReportIDPermissions(BasePermission):
     def has_permission(self, request, view):
@@ -16,15 +17,23 @@ class ReportIDPermissions(BasePermission):
 
 class ReportCreatePermissions(BasePermission):
     def has_permission(self, request, view):
-      data = request.data
-      if 'user_report_id' in data:
-          if request.user.is_anonymous == False: 
-              if request.user.is_staff: 
-                  return True
-              else: 
-                  return request.user.report_id == request.data['user_report_id']
-          else: 
-              if request.data['user_report_id'] is not None: 
-                  return False
-      else:
-        return True   
+        if request.user.is_staff: 
+            return True
+        data = request.data
+
+        # One user cannot answer several times
+        poll = Poll.objects.get(pk=data['poll'])
+        if request.user.is_anonymous == False: 
+            user_report = Report.objects.filter(Q(user_report_id=request.user.report_id) & Q(poll=poll))
+            if len(user_report) != 0:
+                return False
+
+        # Security check 
+        if 'user_report_id' in data:
+            if request.user.is_anonymous == False: 
+                return request.user.report_id == request.data['user_report_id']
+            else: 
+                if request.data['user_report_id'] is not None: 
+                    return False
+        else:
+            return True   

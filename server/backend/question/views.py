@@ -12,12 +12,13 @@ from .serializers import (AnswerSerializer, CreateReportSerializer,
                           PollSerializer, QuestionSerializer, ReportSerializer,
                           CreatePollSerializer)
 from .permissoins import ReportIDPermissions, ReportCreatePermissions
-from .paginations import PollResultPagination
+from .paginations import PollResultPagination, ReportResultPagination
 
 # Move create-logic ReportViewSet в Serializer
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
     permission_classes = [permissions.AllowAny, ReportCreatePermissions] 
+    pagination_class = ReportResultPagination
 
     def get_queryset(self):
         user = self.request.user
