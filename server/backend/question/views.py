@@ -55,8 +55,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def create(self, request):
         self.check_permissions
         data = request.data
-        #poll_id = data['poll_id']
-        #poll = get_object_or_404(Poll, pk=poll_id)
         question_serializer = QuestionSerializer(data=data)
         if question_serializer.is_valid(raise_exception=True):
             question_serializer.save()
