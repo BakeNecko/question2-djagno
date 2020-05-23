@@ -12,6 +12,7 @@ from .serializers import (AnswerSerializer, CreateReportSerializer,
                           PollSerializer, QuestionSerializer, ReportSerializer,
                           CreatePollSerializer)
 from .permissoins import ReportIDPermissions, ReportCreatePermissions
+from .paginations import PollResultPagination
 
 # Move create-logic ReportViewSet в Serializer
 class ReportViewSet(viewsets.ModelViewSet):
@@ -64,6 +65,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 class PollViewSet(viewsets.ModelViewSet):
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAdminUser, ]
+    pagination_class = PollResultPagination
 
     def create(self, request):
         self.check_permissions(self.request)

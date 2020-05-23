@@ -18,6 +18,7 @@ User = get_user_model()
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    
     @classmethod
     def get_token(cls, user):
         token = super(MyTokenObtainPairSerializer, cls).get_token(user)
@@ -25,10 +26,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 class QuestionSerializer(serializers.ModelSerializer):
+    
     question_type_constants = ['TEXT_RESPONSE', 'ONE_CHOICE_ANSWER', 'MULTIPLE_CHOICE_ANSWER']
     poll = serializers.PrimaryKeyRelatedField(required=False, queryset=Poll.objects.all())
     answer_choices = serializers.JSONField(required=False)
     question_type = serializers.ChoiceField(choices=question_type_constants)
+
     class Meta:
         model = Question
         fields = [
@@ -52,11 +55,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class PollSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
-    name = serializers.CharField(required=True)
-    description = serializers.CharField(required=True)
-    date_start = serializers.DateField(required=True)
-    date_end = serializers.DateField(required=True)
-
+    
     # Dont get update start_date field
     def update(self, instance, validated_data):
         validated_keys = list((validated_data.keys()))
@@ -77,9 +76,10 @@ class PollSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'description',
+            'published',
             'date_start',
             'date_end',
-            'questions'
+            'questions',
         ]
         extra_kwargs = {
             "name": {"required": True},
@@ -87,12 +87,13 @@ class PollSerializer(serializers.ModelSerializer):
             "date_start": {"required": True},
             "date_end": {"required": True},
             "questions": {"required": False},
+            "published": {"read_only": True},
         }
         depth = 1
 
 class CreatePollSerializer(serializers.ModelSerializer):
     questions_list = serializers.ListField(child=serializers.JSONField())
-    
+
     class Meta:
         model = Poll
         fields = [
@@ -111,8 +112,8 @@ class CreatePollSerializer(serializers.ModelSerializer):
             "questions_list": {"required": True},
         }
    
-    # Это поле можно внести в validate но я решил использовать 
-    # шаблон validate_<field name> для проверки конкретного поля 
+    # Эту проверку можно внести в validate но я решил использовать 
+    # шаблон validate_<field name> для проверки конкретного поля для разнообразия
     def validate_questions_list(self, value):
         if len(value) == 0:
             raise serializers.ValidationError('pute some question to questoins_list')
@@ -132,7 +133,8 @@ class CreatePollSerializer(serializers.ModelSerializer):
         if poll_serializer.is_valid(raise_exception=True):
             poll_model = poll_serializer.save()
         # associate questoins and poll model
-        for question in question_list:  # TODO: Добавить инкапсуляцию на уровне свзанных моделей
+        for question in question_list:  # TODO: Как добавить инкапсуляцию на уровне свзанных моделей 
+            # Лучше использовать Serializer чем objects т.к Srializer проверяет входящие данные.
             question_serializer = QuestionSerializer(data=question)
             if question_serializer.is_valid(raise_exception=True):
                 question_serializer.save(poll=poll_model)
@@ -184,5 +186,4 @@ class CreateReportSerializer(serializers.ModelSerializer):
             ans_serializer = AnswerSerializer(data=ans)
             if ans_serializer.is_valid(raise_exception=True):
                 ans_serializer.save(report=report_model)
-
         return report_model
