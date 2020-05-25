@@ -9,6 +9,10 @@ import jsonfield
 
 
 class MyUser(AbstractUser):
+    # В обычной ситуации когда нужно создать связь с полем а не с моделью
+    # В вторичной модели (Report) в поле user_report_id нужно указать
+    # параметр to_field='report_id' но это создаст прямую свзяь с моделью MyUser 
+    # Но вы сказали связи с моделью User не должно быть
     report_id = models.BigIntegerField(blank=True,null=True, unique=True)
 
 
