@@ -3,6 +3,7 @@ from datetime import date
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 
 import jsonfield
 
@@ -28,12 +29,23 @@ class Poll(models.Model):
     def is_active(self):
         return date.today() > self.date_end
 
+    def clean(self):
+        errors = {}
+        today = date.today()
+        if self.date_start > self.date_end: 
+            errors['start_end_date'] = ValidationError("date_start should be more than date_end")
+        if self.date_start < today: 
+            errors['date_start'] = ValidationError("date_start should be more than today")
+        if errors:
+            raise ValidationError(errors)
+
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name = 'Poll'
         verbose_name_plural = 'Polls'
 
-    def __str__(self):
-        return self.name
 
 class Question(models.Model):
     TEXT_RESPONSE = 'TEXT_RESPONSE'
