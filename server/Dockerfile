@@ -1,6 +1,34 @@
 FROM python:3.8-alpine
 
-RUN apk update && apk add build-base python-dev py-pip jpeg-dev zlib-dev openssl-dev gcc libffi-dev postgresql-dev
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apk update \
+    && apk add postgresql-dev gcc python3-dev musl-dev 
+
+# Install dependencies for Pillow 
+RUN apk --no-cache add build-base \
+                       # wget dependency
+                       openssl \
+                       # dev dependencies
+                       git \
+                       bash \
+                       sudo \
+                       py3-pip \
+                       # Pillow dependencies
+                       jpeg-dev \
+                       zlib-dev \
+                       freetype-dev \
+                       lcms2-dev \
+                       openjpeg-dev \
+                       tiff-dev \
+                       tk-dev \
+                       tcl-dev \
+                       harfbuzz-dev \
+                       fribidi-dev
+
 ENV LIBRARY_PATH=/lib:/usr/lib
 
 WORKDIR /usr/src/app
